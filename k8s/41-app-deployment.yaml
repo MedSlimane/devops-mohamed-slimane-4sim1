@@ -1,20 +1,20 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: student-management
-  namespace: student-management
+  name: student-management-app
+  namespace: devops
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: student-management
+      app: student-management-app
   template:
     metadata:
       labels:
-        app: student-management
+        app: student-management-app
     spec:
       containers:
-        - name: app
+        - name: student-management-app
           image: slimane69/devops-mohamed-slimane:latest
           imagePullPolicy: Always
           ports:
@@ -28,13 +28,3 @@ spec:
                 secretKeyRef:
                   name: mysql-secret
                   key: mysql-root-password
-          livenessProbe:
-            tcpSocket:
-              port: 8089
-            initialDelaySeconds: 30
-            periodSeconds: 10
-          readinessProbe:
-            tcpSocket:
-              port: 8089
-            initialDelaySeconds: 10
-            periodSeconds: 5

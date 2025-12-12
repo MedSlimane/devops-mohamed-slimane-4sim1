@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: mysql
-  namespace: student-management
+  namespace: devops
 spec:
   replicas: 1
   selector:
@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: mysql
-          image: mysql:8.0
+          image: mysql:8
           ports:
             - containerPort: 3306
           env:
@@ -25,7 +25,10 @@ spec:
                   name: mysql-secret
                   key: mysql-root-password
             - name: MYSQL_DATABASE
-              value: studentdb
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-secret
+                  key: mysql-database
           volumeMounts:
             - name: mysql-data
               mountPath: /var/lib/mysql

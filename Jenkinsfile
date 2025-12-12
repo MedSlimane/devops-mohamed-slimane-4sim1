@@ -8,8 +8,10 @@ pipeline {
     environment {
         DOCKERHUB_USER = 'slimane69'
         IMAGE_NAME = 'devops-mohamed-slimane'
-        K8S_NAMESPACE = 'student-management'
-        K8S_MANIFESTS_DIR = 'k8s'
+        K8S_NAMESPACE = 'devops'
+        K8S_MANIFEST_DIR = 'k8s'
+        K8S_DEPLOYMENT_NAME = 'student-management-app'
+        KUBECONFIG_CREDENTIAL_ID = 'kubeconfig-devops'
     }
 
     stages {
@@ -42,8 +44,7 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 sh """
-                    docker build -t ${DOCKERHUB_USER}/${IMAGE_NAME}:${BUILD_NUMBER} .
-                    docker tag ${DOCKERHUB_USER}/${IMAGE_NAME}:${BUILD_NUMBER} ${DOCKERHUB_USER}/${IMAGE_NAME}:latest
+                    docker build -t ${DOCKERHUB_USER}/${IMAGE_NAME}:latest .
                 """
             }
         }
@@ -62,21 +63,28 @@ pipeline {
 
         stage('Docker Push') {
             steps {
-                sh """
-                    docker push ${DOCKERHUB_USER}/${IMAGE_NAME}:${BUILD_NUMBER}
-                    docker push ${DOCKERHUB_USER}/${IMAGE_NAME}:latest
-                """
+                sh "docker push ${DOCKERHUB_USER}/${IMAGE_NAME}:latest"
             }
         }
 
         stage('Deploy to Kubernetes') {
             steps {
-                withCredentials([file(credentialsId: 'kubeconfig', variable: 'KUBECONFIG')]) {
+                withCredentials([file(credentialsId: "${KUBECONFIG_CREDENTIAL_ID}", variable: 'KUBECONFIG')]) {
                     sh """
-                        kubectl apply -f ${K8S_MANIFESTS_DIR}/00-namespace.yaml
-                        kubectl apply -n ${K8S_NAMESPACE} -f ${K8S_MANIFESTS_DIR}
-                        kubectl -n ${K8S_NAMESPACE} set image deployment/student-management app=${DOCKERHUB_USER}/${IMAGE_NAME}:${BUILD_NUMBER}
-                        kubectl -n ${K8S_NAMESPACE} rollout status deployment/student-management --timeout=180s
+                        kubectl apply -f ${K8S_MANIFEST_DIR}/
+                        kubectl -n ${K8S_NAMESPACE} rollout restart deployment/${K8S_DEPLOYMENT_NAME}
+                    """
+                }
+            }
+        }
+
+        stage('Verify Rollout') {
+            steps {
+                withCredentials([file(credentialsId: "${KUBECONFIG_CREDENTIAL_ID}", variable: 'KUBECONFIG')]) {
+                    sh """
+                        kubectl -n ${K8S_NAMESPACE} rollout status deployment/${K8S_DEPLOYMENT_NAME} --timeout=180s
+                        kubectl -n ${K8S_NAMESPACE} get pods -o wide
+                        kubectl -n ${K8S_NAMESPACE} get svc
                     """
                 }
             }
