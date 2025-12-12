@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: student-management
+  namespace: student-management
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: student-management
+  template:
+    metadata:
+      labels:
+        app: student-management
+    spec:
+      containers:
+        - name: app
+          image: slimane69/devops-mohamed-slimane:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8089
+          envFrom:
+            - configMapRef:
+                name: student-management-config
+          env:
+            - name: SPRING_DATASOURCE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-secret
+                  key: mysql-root-password
+          livenessProbe:
+            tcpSocket:
+              port: 8089
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            tcpSocket:
+              port: 8089
+            initialDelaySeconds: 10
+            periodSeconds: 5
