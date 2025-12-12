@@ -13,7 +13,6 @@ pipeline {
     }
 
     stages {
-
         stage('Git Checkout') {
             steps {
                 git branch: 'master', url: 'https://github.com/MedSlimane/devops-mohamed-slimane-4sim1'
@@ -26,13 +25,13 @@ pipeline {
             }
         }
 
-        stage('SonarQube Analysis') {
-            steps {
-                withSonarQubeEnv('xsonar') { // uses the global SonarQube server config
-                    sh 'mvn sonar:sonar'
-                }
-            }
-        }
+        // stage('SonarQube Analysis') {
+        //     steps {
+        //         withSonarQubeEnv('xsonar') { // uses the global SonarQube server config
+        //             sh 'mvn sonar:sonar'
+        //         }
+        //     }
+        // }
 
         stage('Maven Package') {
             steps {
@@ -57,7 +56,7 @@ pipeline {
                     sh """
                         echo "$PASS" | docker login -u "$USER" --password-stdin
                     """
-                }
+                                                 }
             }
         }
 
