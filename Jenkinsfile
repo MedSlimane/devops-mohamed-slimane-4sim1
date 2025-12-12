@@ -11,7 +11,7 @@ pipeline {
         K8S_NAMESPACE = 'devops'
         K8S_MANIFEST_DIR = 'k8s'
         K8S_DEPLOYMENT_NAME = 'student-management-app'
-        KUBECONFIG_CREDENTIAL_ID = 'kubeconfig-devops'
+        KUBECONFIG_CREDENTIAL_ID = 'kubeconfig'
     }
 
     stages {
