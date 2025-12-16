@@ -12,10 +12,6 @@ spec:
     metadata:
       labels:
         app: student-management-app
-      annotations:
-        prometheus.io/scrape: "true"
-        prometheus.io/path: "/student/actuator/prometheus"
-        prometheus.io/port: "8089"
     spec:
       containers:
         - name: student-management-app
